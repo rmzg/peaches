@@ -1,0 +1,55 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: xkcd-server-deployment
+spec:
+  selector:
+    matchLabels:
+      app: xkcd-server
+  template:
+    metadata:
+      labels:
+        app: xkcd-server
+    spec:
+      containers:
+        - name: xkcd-server
+          image: registry.home.rmz.gs/peaches-xkcd
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: regcred
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: xkcd-server-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: xkcd-server
+
+---
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: xkcd-server-ingress
+  annotations:
+    kubernetes.io/ingress.class: haproxy
+spec:
+  tls:
+    - hosts:
+        - xkcd.home.rmz.gs
+      secretName: tls-secret
+  rules:
+    - host: xkcd.home.rmz.gs
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: xkcd-server-service
+                port:
+                  number: 80
