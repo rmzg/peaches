@@ -1,29 +1,72 @@
 <script setup lang="ts">
+import comics from '@/data'
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+
+const comicYears = comics
+  .reduce((acc, comic) => {
+    if (!acc.includes(comic.year)) {
+      acc.push(comic.year)
+    }
+    return acc
+  }, [] as number[])
+  .sort()
+const comicMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+const comicDays = [
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+  28, 29, 30, 31
+]
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
+    <h1>MyPeach XKCD Viewer</h1>
     <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
       <nav>
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+        <RouterLink to="/random">Random</RouterLink>
       </nav>
+      <div id="filter">
+        <form action="/search" method="GET">
+          <label>Query: <input type="text" name="q" /></label>
+          <label>
+            Years:
+            <select name="year">
+              <option value="">&nbsp;</option>
+              <option v-for="year of comicYears" :key="year">{{ year }}</option>
+            </select>
+          </label>
+          <label>
+            Month:
+            <select name="month">
+              <option value="">&nbsp;</option>
+              <option v-for="month of comicMonths" :key="month">{{ month }}</option>
+            </select>
+          </label>
+          <label>
+            Day:
+            <select name="day">
+              <option value="">&nbsp;</option>
+              <option v-for="day of comicDays" :key="day">{{ day }}</option>
+            </select>
+          </label>
+
+          <input type="submit" value="Filter" />
+        </form>
+      </div>
     </div>
   </header>
 
-  <RouterView />
+  <RouterView :key="$route.fullPath" />
 </template>
 
 <style scoped>
 header {
   line-height: 1.5;
-  max-height: 100vh;
+}
+
+header h1 {
+  text-align: center;
+  padding-bottom: 20px;
 }
 
 .logo {
@@ -35,7 +78,6 @@ nav {
   width: 100%;
   font-size: 12px;
   text-align: center;
-  margin-top: 2rem;
 }
 
 nav a.router-link-exact-active {
@@ -56,30 +98,7 @@ nav a:first-of-type {
   border: 0;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+#filter {
+  text-align: center;
 }
 </style>
